@@ -18,12 +18,12 @@ function query($query)
 }
 // minta data supplier dari database
 $id = $_GET['detail'];
-$transBeli = query("SELECT * FROM trans_beli_view WHERE no_faktur = '$id'");
-$detailBeli = query("SELECT * FROM detail_beli_view WHERE no_faktur = '$id'");
-$hari = $transBeli[0]['tgl'];
-$bulan = $transBeli[0]['bulan'];
-$tahun = $transBeli[0]['tahun'];
-$jam = $transBeli[0]['jam'];
+$transJual = query("SELECT * FROM trans_jual_view WHERE nota = '$id'");
+$detailJual = query("SELECT * FROM detail_jual_view WHERE nota = '$id'");
+$hari = $transJual[0]['hari'];
+$bulan = $transJual[0]['bulan'];
+$tahun = $transJual[0]['tahun'];
+$jam = $transJual[0]['jam'];
 $tgl = $hari . " " . $bulan . " " . $tahun . " " . $jam;
 
 ?>
@@ -36,7 +36,7 @@ $tgl = $hari . " " . $bulan . " " . $tahun . " " . $jam;
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../css/bootstrap.css">
-  <title>Detail Beli</title>
+  <title>Detail Jual</title>
 </head>
 
 <body>
@@ -46,10 +46,10 @@ $tgl = $hari . " " . $bulan . " " . $tahun . " " . $jam;
         Toko Ali 2
       </div>
       <div class="card-body">
-        <h5 class="card-title">Faktur Pembelian</h5>
+        <h5 class="card-title">Nota Penjualan</h5>
         <article class="card-text text-right"><?= $tgl; ?></article>
-        <article class="card-text text-left">No Faktur : <?= $transBeli[0]['no_faktur']; ?></article>
-        <article class="card-text text-left">Supplier : <?= $transBeli[0]['nm_supp']; ?></article>
+        <article class="card-text text-left">Nota : <?= $transJual[0]['nota']; ?></article>
+        <article class="card-text text-left">Pembeli : <?= $transJual[0]['nm_pembeli']; ?></article>
         <br>
         <table class="table table-bordered">
           <thead>
@@ -66,7 +66,7 @@ $tgl = $hari . " " . $bulan . " " . $tahun . " " . $jam;
             <?php
             $no = 1;
             $total = 0;
-            foreach ($detailBeli as $d) :
+            foreach ($detailJual as $d) :
               $total += $d['bayar'];
             ?>
               <tr>
@@ -79,7 +79,7 @@ $tgl = $hari . " " . $bulan . " " . $tahun . " " . $jam;
             <?php
             endforeach;
             if (isset($_GET['total'])) {
-              $query = "UPDATE trans_beli SET total_bayar = '$total' WHERE no_faktur = '$id'";
+              $query = "UPDATE trans_jual SET total_bayar = '$total' WHERE nota = '$id'";
               mysqli_query($conn, $query) or die(mysqli_error($conn));
             }
             ?>
@@ -96,7 +96,7 @@ $tgl = $hari . " " . $bulan . " " . $tahun . " " . $jam;
     </div>
     <br><br>
     <div class="text-right">
-      <a href="transbeli.php" class="btn btn-secondary ">Kembali</a>
+      <a href="transjual.php" class="btn btn-secondary ">Kembali</a>
     </div>
   </div>
 </body>

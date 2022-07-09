@@ -17,18 +17,17 @@ function query($query)
   return $rows;
 }
 // minta data supplier dari database
-$transBeli = query("SELECT * FROM trans_beli_view ORDER BY no_faktur");
-$supplier = query("SELECT * FROM supplier");
+$transJual = query("SELECT * FROM trans_jual_view ORDER BY nota");
 
 // tambah
 if (isset($_POST['tambah'])) :
-  $kd = $_POST['supplier'];
-  $query = "INSERT INTO trans_beli (kd_supp) VALUES ('$kd')";
+  $nama = $_POST['nama'];
+  $query = "INSERT INTO trans_jual (nm_pembeli) VALUES ('$nama')";
   mysqli_query($conn, $query) or die(mysqli_error($conn));
 
 ?>
   <script>
-    document.location.href = 'inputTransBeli.php';
+    document.location.href = 'inputTransJual.php';
   </script>
 <?php endif; ?>
 
@@ -42,7 +41,7 @@ if (isset($_POST['tambah'])) :
 
   <link rel="stylesheet" href="..\css\bootstrap.css">
 
-  <title>Tabel Trans Beli</title>
+  <title>Tabel Trans Jual</title>
 </head>
 
 <body>
@@ -69,18 +68,14 @@ if (isset($_POST['tambah'])) :
 
     <body style="margin-top: 50px; background-color: #636363;">
       <br>
-      <h1 style="text-align: center;"> TRANSAKSI PEMBELIAN</h1>
+      <h1 style="text-align: center;"> TRANSAKSI PENJUALAN</h1>
       <br>
       <div class="container">
+        <!-- input data -->
         <form action="" method="POST">
           <div class="form-row">
             <div class="col-md-4">
-              <select id="inputState" name="supplier" class="form-control" required>
-                <option selected> Nama Supplier</option>
-                <?php foreach ($supplier as $s) : ?>
-                  <option value="<?= $s['kd_supp']; ?>"><?= $s['nm_supp']; ?></option>
-                <?php endforeach; ?>
-              </select>
+              <input type="text" name="nama" id="nama" placeholder="Nama Pembeli" class="form-control" required>
             </div>
             <div class="col-md-3">
               <button type="submit" name="tambah" class="btn btn-dark">Tambah Transaksi</button>
@@ -94,23 +89,23 @@ if (isset($_POST['tambah'])) :
             <table class="table table-dark table-hover">
               <thead class="thead-dark">
                 <tr>
-                  <th>No Faktur</th>
+                  <th>Nota</th>
                   <th>Tgl</th>
-                  <th>Nama Supplier</th>
+                  <th>Nama Pembeli</th>
                   <th>Total</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 <?php
-                foreach ($transBeli as $b) : ?>
+                foreach ($transJual as $b) : ?>
                   <tr>
-                    <td><?= $b['no_faktur']; ?></td>
-                    <td><?= $b['tgl']; ?> <?= $b['bulan']; ?> <?= $b['tahun']; ?> <?= $b['jam']; ?></td>
-                    <td><?= $b['nm_supp']; ?></td>
+                    <td><?= $b['nota']; ?></td>
+                    <td><?= $b['hari']; ?> <?= $b['bulan']; ?> <?= $b['tahun']; ?> <?= $b['jam']; ?></td>
+                    <td><?= $b['nm_pembeli']; ?></td>
                     <td><?= $b['total_bayar']; ?></td>
                     <td>
-                      <a href="detailbeli.php?detail=<?= $b['no_faktur']; ?>" class="badge badge-secondary ">Detail</a>
+                      <a href="detailjual.php?detail=<?= $b['nota']; ?>" class="badge badge-secondary ">Detail</a>
                     </td>
                   </tr>
                 <?php endforeach; ?>

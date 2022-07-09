@@ -22,10 +22,30 @@ $supplier = query("SELECT * FROM supplier");
 $barang = query("SELECT * FROM barang");
 
 // tambah
-if (isset($_POST['tambah'])) {
-  var_dump($_POST);
-}
+if (isset($_POST['tambah'])) :
+  $faktur = query('SELECT max(no_faktur) AS no_faktur FROM trans_beli');
+  $faktur = $faktur[0]['no_faktur'];
+
+  $kd = $_POST['barang'];
+  $jumlah = $_POST['jumlah'];
+
+  $query = query("SELECT * FROM barang WHERE kd_brg = '$kd'");
+  $harga = $query[0]['harga_beli'];
+
+  $bayar = $harga * $jumlah;
+
+  $query = "INSERT INTO detail_beli VALUES ('$faktur','$kd','$harga','$jumlah','$bayar')";
+  mysqli_query($conn, $query) or die(mysqli_error($conn));
+
+  $query = "UPDATE barang set stok = ('$jumlah'+ stok) WHERE kd_brg='$kd'";
+  $result = mysqli_query($conn, $query) or die(mysqli_error($conn));
 ?>
+  <script>
+    if (!confirm('masukkan data lagi?')) {
+      document.location.href = 'detailbeli.php?detail=<?= $faktur; ?>&total='
+    }
+  </script>
+<?php endif; ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -39,55 +59,23 @@ if (isset($_POST['tambah'])) {
 
 <body>
   <div class="container">
+    <h3>Tambah Detail Barang</h3>
     <form action="" method="POST">
-      <input type="hidden" name="no_faktur" id="no_faktur">
-      <div class="form-group">
-        <label for="inputState">Nama Supplier</label>
-        <select id="inputState" name="supplier" class="form-control">
-          <option selected></option>
-          <?php foreach ($supplier as $s) : ?>
-            <option value="<?= $s['kd_supp']; ?>"><?= $s['nm_supp']; ?></option>
-          <?php endforeach; ?>
-        </select>
+      <div class="form-row">
+        <div class="col-md-4">
+          <label for="barang">Barang</label>
+          <select name="barang" id="barang" class="form-control">
+            <option selected></option>
+            <?php foreach ($barang as $s) : ?>
+              <option value="<?= $s['kd_brg']; ?>"><?= $s['nm_brg']; ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="col-md-2 mb-2">
+          <label for="jumlah">Jumlah</label>
+          <input type="number" name="jumlah" id="jumlah" class="form-control">
+        </div>
       </div>
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th scope="col">Barang</th>
-            <th scope="col">Harga</th>
-            <th scope="col">Jumlah</th>
-            <th scope="col">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <select i name="barang" class="form-control">
-                <option selected></option>
-                <?php foreach ($barang as $s) : ?>
-                  <option value="<?= $s['kd_brg']; ?>"><?= $s['nm_brg']; ?></option>
-                <?php endforeach; ?>
-              </select>
-            </td>
-            <td>
-              <fieldset disabled>
-                <input type="number">
-              </fieldset>
-            </td>
-            <td><input type="number" name="jumlah" id="jumlah"></td>
-            <td>
-              <fieldset disabled>
-                <input type="number">
-              </fieldset>
-            </td>
-          </tr>
-
-          <tr>
-            <th colspan="3" class="text-center">TOTAL</th>
-            <th>Rp.</th>
-          </tr>
-        </tbody>
-      </table>
       <button type="submit" name="tambah" class="btn btn-dark">Tambah</button>
     </form>
   </div>
