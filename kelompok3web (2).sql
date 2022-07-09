@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 09, 2022 at 10:20 AM
+-- Generation Time: Jul 09, 2022 at 02:59 PM
 -- Server version: 10.4.22-MariaDB
 -- PHP Version: 7.4.27
 
@@ -40,10 +40,10 @@ CREATE TABLE `barang` (
 --
 
 INSERT INTO `barang` (`kd_brg`, `nm_brg`, `stok`, `harga_jual`, `harga_beli`) VALUES
-(16, 'Akuarium Kecil', 5, 40000, 30000),
+(16, 'Akuarium Kecil', 23, 40000, 30000),
 (17, 'Akuarium Sedang', 6, 60000, 45000),
-(18, 'Akuarium Besar', 4, 100000, 80000),
-(19, 'Pakan ikan', 20, 20000, 15000),
+(18, 'Akuarium Besar', 5, 100000, 80000),
+(19, 'Pakan ikan', 9, 20000, 15000),
 (22, 'Cupang eyeCup', 50, 60000, 45000);
 
 -- --------------------------------------------------------
@@ -59,16 +59,6 @@ CREATE TABLE `detail_beli` (
   `jumlah` int(11) NOT NULL,
   `bayar` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `detail_beli`
---
-
-INSERT INTO `detail_beli` (`no_faktur`, `kd_brg`, `harga`, `jumlah`, `bayar`) VALUES
-(1, 16, 0, 1, 100000),
-(1, 18, 0, 3, 135000),
-(2, 22, 45000, 3, 135000),
-(2, 19, 40000, 2, 80000);
 
 -- --------------------------------------------------------
 
@@ -93,9 +83,36 @@ CREATE TABLE `detail_beli_view` (
 CREATE TABLE `detail_jual` (
   `nota` int(11) NOT NULL,
   `kd_brg` int(11) NOT NULL,
+  `harga` int(11) NOT NULL,
   `jumlah` int(11) NOT NULL,
   `bayar` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `detail_jual`
+--
+
+INSERT INTO `detail_jual` (`nota`, `kd_brg`, `harga`, `jumlah`, `bayar`) VALUES
+(1, 16, 0, 1, 135000),
+(1, 18, 0, 2, 40000),
+(2, 16, 40000, 9, 360000),
+(3, 19, 20000, 2, 40000),
+(4, 16, 40000, 4, 160000),
+(5, 17, 60000, 1, 60000);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `detail_jual_view`
+-- (See below for the actual view)
+--
+CREATE TABLE `detail_jual_view` (
+`nota` int(11)
+,`nm_brg` varchar(20)
+,`harga` int(11)
+,`jumlah` int(11)
+,`bayar` int(11)
+);
 
 -- --------------------------------------------------------
 
@@ -130,14 +147,6 @@ CREATE TABLE `trans_beli` (
   `total_bayar` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `trans_beli`
---
-
-INSERT INTO `trans_beli` (`no_faktur`, `kd_supp`, `tgl`, `total_bayar`) VALUES
-(1, 7, '2022-07-09 11:59:59', 110000),
-(2, 6, '2022-07-09 14:02:34', 155000);
-
 -- --------------------------------------------------------
 
 --
@@ -167,6 +176,33 @@ CREATE TABLE `trans_jual` (
   `total_bayar` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `trans_jual`
+--
+
+INSERT INTO `trans_jual` (`nota`, `tgl`, `nm_pembeli`, `total_bayar`) VALUES
+(1, '2022-07-09 19:25:39', 'aaa', 66),
+(2, '2022-07-09 19:51:11', 'Muhammad Riqqi Amru', 360000),
+(3, '2022-07-09 19:53:06', 'adfa', 40000),
+(4, '2022-07-09 19:54:59', '', 160000),
+(5, '2022-07-09 19:56:42', 'aaa', 60000);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `trans_jual_view`
+-- (See below for the actual view)
+--
+CREATE TABLE `trans_jual_view` (
+`nota` int(11)
+,`nm_pembeli` varchar(30)
+,`total_bayar` int(11)
+,`hari` int(2)
+,`bulan` varchar(9)
+,`tahun` int(4)
+,`jam` time
+);
+
 -- --------------------------------------------------------
 
 --
@@ -179,11 +215,29 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 -- --------------------------------------------------------
 
 --
+-- Structure for view `detail_jual_view`
+--
+DROP TABLE IF EXISTS `detail_jual_view`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `detail_jual_view`  AS SELECT `detail_jual`.`nota` AS `nota`, `barang`.`nm_brg` AS `nm_brg`, `detail_jual`.`harga` AS `harga`, `detail_jual`.`jumlah` AS `jumlah`, `detail_jual`.`bayar` AS `bayar` FROM (`detail_jual` join `barang`) WHERE `detail_jual`.`kd_brg` = `barang`.`kd_brg` ;
+
+-- --------------------------------------------------------
+
+--
 -- Structure for view `trans_beli_view`
 --
 DROP TABLE IF EXISTS `trans_beli_view`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `trans_beli_view`  AS SELECT `trans_beli`.`no_faktur` AS `no_faktur`, dayofmonth(`trans_beli`.`tgl`) AS `tgl`, monthname(`trans_beli`.`tgl`) AS `bulan`, year(`trans_beli`.`tgl`) AS `tahun`, cast(`trans_beli`.`tgl` as time) AS `jam`, `supplier`.`nm_supp` AS `nm_supp`, `trans_beli`.`total_bayar` AS `total_bayar` FROM (`trans_beli` join `supplier`) WHERE `trans_beli`.`kd_supp` = `supplier`.`kd_supp` ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `trans_jual_view`
+--
+DROP TABLE IF EXISTS `trans_jual_view`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `trans_jual_view`  AS SELECT `trans_jual`.`nota` AS `nota`, `trans_jual`.`nm_pembeli` AS `nm_pembeli`, `trans_jual`.`total_bayar` AS `total_bayar`, dayofmonth(`trans_jual`.`tgl`) AS `hari`, monthname(`trans_jual`.`tgl`) AS `bulan`, year(`trans_jual`.`tgl`) AS `tahun`, cast(`trans_jual`.`tgl` as time) AS `jam` FROM `trans_jual` ;
 
 --
 -- Indexes for dumped tables
@@ -248,13 +302,13 @@ ALTER TABLE `supplier`
 -- AUTO_INCREMENT for table `trans_beli`
 --
 ALTER TABLE `trans_beli`
-  MODIFY `no_faktur` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `no_faktur` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `trans_jual`
 --
 ALTER TABLE `trans_jual`
-  MODIFY `nota` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `nota` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
