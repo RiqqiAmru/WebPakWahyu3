@@ -23,10 +23,11 @@ $barang = query("SELECT * FROM barang");
 if (isset($_POST['Tambah'])) :
   $nama = htmlspecialchars($_POST['nama']);
   $stok = htmlspecialchars($_POST['stok']);
-  $harga = htmlspecialchars($_POST['harga']);
+  $harga_jual = htmlspecialchars($_POST['harga_jual']);
+  $harga_beli = htmlspecialchars($_POST['harga_beli']);
 
   $query = "INSERT INTO barang VALUES
-  ('','$nama','$stok','$harga')";
+  ('','$nama','$stok','$harga_jual','$harga_beli')";
 
   mysqli_query($conn, $query) or die(mysqli_error($conn));
 ?>
@@ -48,30 +49,50 @@ if (isset($_GET['hapus'])) :
     alert('Data barang berhasil dihapus');
     document.location.href = 'barang.php';
   </script>
-<?php endif;
+  <?php endif;
 
 // ubah data
 $aksi = 'Tambah';
 $nama = null;
 $stok = null;
-$harga = null;
+$harga_jual = null;
+$harga_beli = null;
+$id = null;
 $a = null;
+
 
 if (isset($_GET['Ubah'])) :
   $id = $_GET['Ubah'];
-  $barang = query("SELECT * FROM barang WHERE kd_brg = '$id'");
-  var_dump($barang);
+  $ambil = query("SELECT * FROM barang WHERE kd_brg = '$id'");
   $aksi = 'Ubah';
-  $nama = $barang[0]['nm_brg'];
-  $stok = $barang[0]['stok'];
-  $harga = $barang[0]['harga'];
+  $id = $ambil[0]['kd_brg'];
+  $nama = $ambil[0]['nm_brg'];
+  $stok = $ambil[0]['stok'];
+  $harga_jual = $ambil[0]['harga_jual'];
+  $harga_beli = $ambil[0]['harga_beli'];
   $a = 'autofocus';
 
+  if (isset($_POST['Ubah'])) :
+    $nama = $_POST['nama'];
+    $stok = $_POST['stok'];
+    $harga_jual = $_POST['harga_jual'];
+    $harga_beli = $_POST['harga_beli'];
+    $query = "UPDATE barang SET
+    nm_brg = '$nama',
+    stok = '$stok',
+    harga_jual = '$harga_jual',
+    harga_beli = '$harga_beli'
+    WHERE kd_brg = '$id'";
+    $edit = mysqli_query($conn, $query) or die(mysqli_error($conn));
+  ?>
+    <script>
+      alert('Data barang berhasil diubah');
+      document.location.href = 'barang.php';
+    </script>
+<?php
+  endif;
+endif; ?>
 
-
-
-?>
-<?php endif; ?>
 <!doctype html>
 <html lang="en">
 
@@ -108,14 +129,13 @@ if (isset($_GET['Ubah'])) :
 
   <main>
     <div class="container my-5 ">
-
-
       <div class="row">
         <div class="col-md-5 my-5 ">
 
           <!-- form input -->
           <form action="" method="POST">
             <h1><?= $aksi; ?> Barang </h1>
+            <input type="hidden" class="form-control" id="id" name="id" value="<?= $id; ?>">
             <div class="form-group">
               <label for="nama">Nama Barang</label>
               <input type="text" class="form-control" id="nama" name="nama" <?= $a; ?> value="<?= $nama; ?>">
@@ -125,11 +145,19 @@ if (isset($_GET['Ubah'])) :
               <input type="number" class="form-control" id="stok" name="stok" value="<?= $stok; ?>">
             </div>
             <div class="form-group">
-              <label for="harga">Harga</label>
-              <input type="number" class="form-control" id="harga" name="harga" value="<?= $harga; ?>">
+              <label for="harga">Harga Jual</label>
+              <input type="number" class="form-control" id="harga_jual" name="harga_jual" value="<?= $harga_jual; ?>">
+            </div>
+            <div class="form-group">
+              <label for="harga">Harga Beli</label>
+              <input type="number" class="form-control" id="harga_beli" name="harga_beli" value="<?= $harga_beli; ?>">
             </div>
             <button type="submit" class="btn btn-primary" name="<?= $aksi; ?>" id="<?= $aksi; ?>"><?= $aksi; ?></button>
             <button type="reset" class="btn btn-warning">Reset</button>
+
+            <?php if (isset($_GET['Ubah'])) : ?>
+              <a class="btn btn-dark" href="barang.php">Batal</a>
+            <?php endif ?>
           </form>
         </div>
 
@@ -144,7 +172,8 @@ if (isset($_GET['Ubah'])) :
                 <th>No</th>
                 <th>Nama Barang</th>
                 <th>Stok</th>
-                <th>Harga</th>
+                <th>Harga Jual</th>
+                <th>Harga Beli</th>
                 <th>Aksi</th>
               </tr>
             </thead>
@@ -162,7 +191,8 @@ if (isset($_GET['Ubah'])) :
                   <td><?= $no++; ?></td>
                   <td><?= $b['nm_brg']; ?></td>
                   <td><?= $b['stok']; ?></td>
-                  <td>Rp.<?= $b['harga']; ?></td>
+                  <td>Rp.<?= $b['harga_jual']; ?></td>
+                  <td>Rp.<?= $b['harga_beli']; ?></td>
                   <td>
                     <a href="?Ubah=<?= $b['kd_brg']; ?>">Ubah</a> |
                     <a href="?hapus=<?= $b['kd_brg']; ?>" onclick="confirm('apakah anda yakin?')">Hapus</a>

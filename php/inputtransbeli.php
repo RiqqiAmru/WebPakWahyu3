@@ -1,11 +1,13 @@
+<br>
 <?php
+$conn = mysqli_connect('localhost', 'root', '', 'kelompok3web') or die(mysqli_error($conn));
 
 function query($query)
 {
   $conn = mysqli_connect('localhost', 'root', '', 'kelompok3web');
 
   // query isi tabel
-  $result = mysqli_query($conn, $query);
+  $result = mysqli_query($conn, $query) or die(mysqli_error($conn));
 
   // ubah data ke array
   $rows = [];
@@ -14,146 +16,81 @@ function query($query)
   }
   return $rows;
 }
-// minta data barang dari database
-$barang = query("SELECT * FROM transbeli");
+// minta data supplier dari database
+$transBeli = query("SELECT * FROM trans_beli_view ORDER BY no_faktur");
+$supplier = query("SELECT * FROM supplier");
+$barang = query("SELECT * FROM barang");
 
-
+// tambah
+if (isset($_POST['tambah'])) {
+  var_dump($_POST);
+}
 ?>
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-  <link rel="stylesheet" href="..\bootstrap-4.6.1-dist\css\bootstrap.min.css">
-
-  <title>Tabel Trans Beli</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../css/bootstrap.css">
+  <title>Tambah Transaksi</title>
 </head>
 
 <body>
-  <header>
-    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-secondary">
-      <a class="navbar-brand" href="index.php">
-        <img src="..\img\zero-two.jpg" alt="judul" width="30" height="30" class="d-inline-block align-top rounded-circle">
-        Toko Ali 2
-      </a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="about.php">About</a>
-          </li>
-        </ul>
-        <form class="form-inline mt-2 mt-md-0">
-          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-light bg-dark my-2 my-sm-0" type="submit">Search</button>
-        </form>
+  <div class="container">
+    <form action="" method="POST">
+      <input type="hidden" name="no_faktur" id="no_faktur">
+      <div class="form-group">
+        <label for="inputState">Nama Supplier</label>
+        <select id="inputState" name="supplier" class="form-control">
+          <option selected></option>
+          <?php foreach ($supplier as $s) : ?>
+            <option value="<?= $s['kd_supp']; ?>"><?= $s['nm_supp']; ?></option>
+          <?php endforeach; ?>
+        </select>
       </div>
-    </nav>
-  </header>
-
-  <main>
-
-    <body style="margin-top: 50px; background-color: #636363;">
-      <br>
-      <h1 style="text-align: center;">TABEL TRANS BELI</h1>
-
-      <div class="container">
-
-
-        <div class="row ">
-          <div class="col ">
-            <form action="saveee.php" method="POST">
-              <table class="table table-dark table-hover" style="width: 400px; margin-left: auto; margin-right: auto; margin-top: auto;">
-                <thead class="thead-dark">
-                  <th colspan="3" style="text-align: center;">Form Trans Beli</th>
-
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Kode Supplier</td>
-                    <td>:</td>
-                    <td><input type="text" name="Kode--Supplier"></td>
-                  </tr>
-                  <tr>
-                    <td>Kode Barang</td>
-                    <td>:</td>
-                    <td><input type="text" name="Kode--Barang"></td>
-                  </tr>
-                  <tr>
-                    <td>Jumlah</td>
-                    <td>:</td>
-                    <td><input type="number" name="Jumlahh"></td>
-                  </tr>
-                  <tr>
-                    <td>Harga Beli</td>
-                    <td>:</td>
-                    <td><input type="number" name="Harga--Beli"></td>
-                  </tr>
-                  <tr>
-                    <td colspan="2"><input type="reset" value="HAPUS"></td>
-                    <td align="right"><input type="submit" value="KIRIM / SIMPAN" name="t8" id="t8"></td>
-                  </tr>
-                </tbody>
-              </table>
-            </form>
-          </div>
-          <div class="col ">
-
-            <table class="table table-dark table-hover" style="width: auto; margin-left: auto; margin-right: auto; margin-top: auto;" border="1">
-              <thead class="thead-dark">
-                <th colspan="9" style="text-align: center;">Data Trans Beli</th>
-
-              </thead>
-              <tbody>
-                <tr class="text-center">
-                  <th scope="col">No</th>
-                  <th scope="col">Kode Supplier</th>
-                  <th scope="col">Kode Barang</th>
-                  <th scope="col">Jumlah</th>
-                  <th scope="col">Harga Beli</th>
-                </tr>
-                <?php $no = 1;
-                foreach ($barang as $b) : ?>
-                  <tr>
-                    <td><?= $no++; ?></td>
-                    <td><?= $b['kdsuppp']; ?></td>
-                    <td><?= $b['kdbrggg']; ?></td>
-                    <td><?= $b['jumlahh']; ?></td>
-                    <td><?= $b['harga_beli']; ?></td>
-                  </tr>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">Barang</th>
+            <th scope="col">Harga</th>
+            <th scope="col">Jumlah</th>
+            <th scope="col">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <select i name="barang" class="form-control">
+                <option selected></option>
+                <?php foreach ($barang as $s) : ?>
+                  <option value="<?= $s['kd_brg']; ?>"><?= $s['nm_brg']; ?></option>
                 <?php endforeach; ?>
+              </select>
+            </td>
+            <td>
+              <fieldset disabled>
+                <input type="number">
+              </fieldset>
+            </td>
+            <td><input type="number" name="jumlah" id="jumlah"></td>
+            <td>
+              <fieldset disabled>
+                <input type="number">
+              </fieldset>
+            </td>
+          </tr>
 
-              </tbody>
-            </table>
-
-          </div>
-        </div>
-      </div>
-
-
-      <button type="button" class="btn btn-dark " style="margin-left: 70%;">
-        <a class="btn btn-dark" href="index.php" role="button">Kembali ke Halaman Awal</a>
-      </button>
-  </main>
-  <br>
-
-  <footer class="footer  mt-auto py-3 bg-dark">
-
-    <div class="container text-center">
-      <span class="text-muted">&copy; 2022 | Toko Ali 2</span>
-    </div>
-
-  </footer>
-
-  <script src="..\bootstrap-4.6.1-dist\js\jquery-3.6.0.min.js"></script>
-  <script src="..\bootstrap-4.6.1-dist\js\bootstrap.bundle.min.js"></script>
-  <script src="..\bootstrap-4.6.1-dist\js\popper.min.js"></script>
-
+          <tr>
+            <th colspan="3" class="text-center">TOTAL</th>
+            <th>Rp.</th>
+          </tr>
+        </tbody>
+      </table>
+      <button type="submit" name="tambah" class="btn btn-dark">Tambah</button>
+    </form>
+  </div>
 </body>
 
 </html>
